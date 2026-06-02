@@ -460,10 +460,7 @@ def page_team():
     summary["CPC"]         = (summary["집행금액"] / summary["클릭수"].replace(0, pd.NA)).round(0)
     summary = summary.sort_values("집행금액", ascending=False)
 
-    st.dataframe(
-        summary.style.background_gradient(subset=["집행금액","노출수"], cmap="Blues"),
-        use_container_width=True, hide_index=True,
-    )
+    st.dataframe(summary, use_container_width=True, hide_index=True)
 
     st.divider()
 
@@ -524,8 +521,6 @@ def detect_issues(df):
 
 
 # ── 메인 ──────────────────────────────────────────────────────────────
-tab1, tab2 = st.tabs(["📊 전체 대시보드", "👥 팀 대시보드"])
+tab1, = st.tabs(["📊 전체 대시보드"])
 with tab1:
     page_overall()
-with tab2:
-    page_team()
