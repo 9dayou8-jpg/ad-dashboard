@@ -15,28 +15,137 @@ st.set_page_config(
 APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf8yCiR_Vx0VTVbGTgAPguH08M1r7FtPaF_g3KfbY2GJWUJSd1HihLuergbrylptrYfw/exec"
 TEAM_ACCOUNTS = []
 
-PLATFORM_COLORS = {"TVING": "#FF4B4B", "Wavve": "#0068C9"}
-DEVICE_COLORS   = {"CTV": "#7B61FF", "iOS": "#00C0A3", "Android": "#FFB300", "Web": "#FF7043"}
+PLATFORM_COLORS = {"TVING": "#7C3AED", "Wavve": "#06B6D4"}
+DEVICE_COLORS   = {"CTV": "#F59E0B", "iOS": "#10B981", "Android": "#EF4444", "Web": "#3B82F6"}
+
+CHART_FONT  = "#1E1B4B"
+CHART_BG    = "rgba(0,0,0,0)"
+GRID_COLOR  = "rgba(0,0,0,0.06)"
 
 # ── CSS ───────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@media (max-width: 768px) { .block-container { padding: 1rem 0.5rem; } }
-
-.section-title {
-    font-size: 16px; font-weight: 600; color: #E5E7EB;
-    margin: 24px 0 12px; padding-left: 8px;
-    border-left: 3px solid #7B61FF;
+/* ── 전체 배경 ── */
+.stApp {
+    background: linear-gradient(140deg, #F5F3FF 0%, #EDE9FE 60%, #F0FEFF 100%);
+}
+.block-container {
+    padding: 2rem 2.5rem 3rem !important;
+    max-width: 1400px;
 }
 
-/* KPI 카드 테두리 */
+/* ── 사이드바 ── */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%) !important;
+    border-right: none !important;
+}
+[data-testid="stSidebar"] * { color: #EDE9FE !important; }
+[data-testid="stSidebar"] label { color: #C4B5FD !important; }
+[data-testid="stSidebar"] .stSelectbox > div,
+[data-testid="stSidebar"] .stMultiSelect > div { background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.25) !important; }
+[data-testid="stSidebar"] h3 { color: white !important; font-size: 15px !important; font-weight: 700 !important; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 16px; }
+
+/* ── KPI 메트릭 카드 ── */
 [data-testid="stMetric"] {
-    border: 1px solid rgba(180,180,200,0.25);
-    border-radius: 10px;
-    padding: 14px 16px !important;
-    background: rgba(255,255,255,0.03);
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 20px 22px !important;
+    box-shadow: 0 4px 24px rgba(109, 40, 217, 0.10), 0 1px 4px rgba(0,0,0,0.06) !important;
+    border: 1px solid rgba(196, 181, 253, 0.35) !important;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
+[data-testid="stMetric"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(109, 40, 217, 0.15) !important;
+}
+[data-testid="stMetricLabel"] { color: #6D28D9 !important; font-size: 12px !important; font-weight: 600 !important; text-transform: uppercase; letter-spacing: 0.06em; }
+[data-testid="stMetricValue"] { color: #1E1B4B !important; font-size: 26px !important; font-weight: 800 !important; }
+
+/* ── 섹션 타이틀 ── */
+.section-title {
+    font-size: 16px; font-weight: 700; color: #4C1D95;
+    margin: 28px 0 14px; padding: 10px 14px;
+    background: white;
+    border-left: 4px solid #7C3AED;
+    border-radius: 0 10px 10px 0;
+    box-shadow: 0 2px 8px rgba(109,40,217,0.08);
+    display: inline-block; width: 100%;
+}
+
+/* ── 탭 ── */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+    background: white;
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.stTabs [data-baseweb="tab"] {
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-weight: 600;
+    color: #6D28D9;
+}
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, #6D28D9, #7C3AED) !important;
+    color: white !important;
+}
+
+/* ── 버튼 ── */
+.stButton > button {
+    background: linear-gradient(135deg, #6D28D9, #7C3AED) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    padding: 8px 18px !important;
+    box-shadow: 0 4px 12px rgba(109,40,217,0.3) !important;
+    transition: all 0.2s !important;
+}
+.stButton > button:hover {
+    box-shadow: 0 6px 18px rgba(109,40,217,0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ── 텍스트 입력 ── */
+.stTextInput > div > div { border-radius: 10px !important; border-color: #C4B5FD !important; }
+.stTextInput > div > div:focus-within { border-color: #7C3AED !important; box-shadow: 0 0 0 3px rgba(124,58,237,0.15) !important; }
+
+/* ── Expander ── */
+.streamlit-expanderHeader { background: white !important; border-radius: 10px !important; }
+
+/* ── Divider ── */
+hr { border-color: rgba(196,181,253,0.3) !important; }
+
+/* ── 모바일 ── */
+@media (max-width: 768px) { .block-container { padding: 1rem 0.75rem !important; } }
 </style>
+""", unsafe_allow_html=True)
+
+
+# ── 헤더 배너 ─────────────────────────────────────────────────────────
+st.markdown("""
+<div style="
+    background: linear-gradient(135deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%);
+    border-radius: 20px;
+    padding: 28px 36px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(109,40,217,0.25);
+    display: flex; align-items: center; justify-content: space-between;
+">
+    <div>
+        <div style="color: rgba(196,181,253,0.9); font-size: 13px; font-weight: 600; letter-spacing: 0.1em; margin-bottom: 4px;">
+            TVING · 광고 성과
+        </div>
+        <div style="color: white; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">
+            📊 광고 성과 대시보드
+        </div>
+    </div>
+    <div style="text-align:right;">
+        <div style="color: rgba(196,181,253,0.8); font-size: 12px;">마지막 업데이트</div>
+        <div style="color: white; font-size: 14px; font-weight: 600;">""" + datetime.now().strftime('%Y-%m-%d %H:%M') + """</div>
+    </div>
+</div>
 """, unsafe_allow_html=True)
 
 
@@ -114,7 +223,7 @@ def sidebar_filters(df, prefix):
     return f
 
 
-# ── 광고 상품 필터 (캠페인 텍스트 포함 검색) ─────────────────────────
+# ── 광고 상품 필터 ─────────────────────────────────────────────────────
 def product_filter(df, prefix=""):
     keyword = st.text_input(
         "🔎 광고 상품 검색",
@@ -174,6 +283,19 @@ def kpi_row(df):
     c5.metric("CPV 25%",  fmt_num(cpv25,  "원"))
 
 
+# ── 차트 공통 레이아웃 ─────────────────────────────────────────────────
+def _base_layout(height, t=45, b=10, l=10, r=10):
+    return dict(
+        margin=dict(t=t, b=b, l=l, r=r),
+        height=height,
+        paper_bgcolor=CHART_BG,
+        plot_bgcolor=CHART_BG,
+        font_color=CHART_FONT,
+        showlegend=False,
+        coloraxis_showscale=False,
+    )
+
+
 # ── 차트 함수 ─────────────────────────────────────────────────────────
 def donut_chart(df, group_col, value_col, title, color_map=None, max_slices=7, height=300):
     if group_col not in df.columns:
@@ -188,20 +310,19 @@ def donut_chart(df, group_col, value_col, title, color_map=None, max_slices=7, h
         return go.Figure()
 
     fig = px.pie(agg, names=group_col, values=value_col,
-                 title=title, hole=0.55,
+                 title=title, hole=0.58,
                  color=group_col, color_discrete_map=color_map or {})
     fig.update_traces(
         textinfo="percent", textfont_size=11, textposition="outside",
-        marker=dict(line=dict(color="#0F0F1A", width=2)),
+        marker=dict(line=dict(color="white", width=2)),
     )
-    fig.update_layout(
-        margin=dict(t=45, b=55, l=5, r=5),
+    layout = _base_layout(height, t=50, b=55)
+    layout.update(
+        showlegend=True,
         legend=dict(orientation="h", y=-0.2, font=dict(size=10)),
-        height=height,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font_color="#E5E7EB",
+        title=dict(font=dict(size=14, color="#4C1D95")),
     )
+    fig.update_layout(**layout)
     return fig
 
 def hbar_chart(df, group_col, value_col, title, top_n=10):
@@ -212,18 +333,14 @@ def hbar_chart(df, group_col, value_col, title, top_n=10):
     agg = agg.sort_values(value_col, ascending=True)
     fig = px.bar(agg, x=value_col, y=group_col, orientation="h",
                  text_auto=".2s", color=value_col,
-                 color_continuous_scale=[[0,"#312e81"],[0.5,"#6366f1"],[1,"#a5b4fc"]])
+                 color_continuous_scale=[[0,"#C4B5FD"],[0.5,"#7C3AED"],[1,"#4C1D95"]])
     fig.update_traces(marker_line_width=0)
-    fig.update_layout(
-        margin=dict(t=40, b=10, l=10, r=10),
-        height=max(300, top_n * 36),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font_color="#E5E7EB",
-        showlegend=False, coloraxis_showscale=False,
-        xaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
-        yaxis=dict(gridcolor="rgba(0,0,0,0)"),
+    layout = _base_layout(max(300, top_n * 36))
+    layout.update(
+        xaxis=dict(gridcolor=GRID_COLOR),
+        yaxis=dict(gridcolor=CHART_BG),
     )
+    fig.update_layout(**layout)
     return fig
 
 def bar_chart(df, group_col, value_col, title, color_map=None):
@@ -232,18 +349,14 @@ def bar_chart(df, group_col, value_col, title, color_map=None):
     agg = df.groupby(group_col)[value_col].sum().reset_index().sort_values(value_col, ascending=False)
     fig = px.bar(agg, x=group_col, y=value_col, title=title,
                  color=value_col, text_auto=".2s",
-                 color_continuous_scale=[[0,"#312e81"],[0.5,"#6366f1"],[1,"#a5b4fc"]])
-    fig.update_layout(
-        margin=dict(t=40, b=60, l=10, r=10),
-        height=320,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font_color="#E5E7EB",
-        showlegend=False,
-        coloraxis_showscale=False,
-        xaxis=dict(tickangle=-30, gridcolor="rgba(0,0,0,0)"),
-        yaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+                 color_continuous_scale=[[0,"#C4B5FD"],[0.5,"#7C3AED"],[1,"#4C1D95"]])
+    layout = _base_layout(320, t=45, b=60)
+    layout.update(
+        title=dict(font=dict(size=14, color="#4C1D95")),
+        xaxis=dict(tickangle=-30, gridcolor=CHART_BG),
+        yaxis=dict(gridcolor=GRID_COLOR),
     )
+    fig.update_layout(**layout)
     return fig
 
 def funnel_chart(df):
@@ -255,29 +368,46 @@ def funnel_chart(df):
     fig = go.Figure(go.Funnel(
         y=labels, x=values,
         textinfo="value+percent initial",
-        marker=dict(color=["#7B61FF","#9B80FF","#BB9FFF","#DBBFFF","#00C0A3"]),
+        marker=dict(color=["#4C1D95","#6D28D9","#7C3AED","#8B5CF6","#10B981"]),
+        connector=dict(line=dict(color="rgba(0,0,0,0.1)", width=1)),
     ))
-    fig.update_layout(
-        title="영상 시청 퍼널", height=340,
-        margin=dict(t=40, b=10, l=10, r=10),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font_color="#E5E7EB",
-    )
+    layout = _base_layout(340, t=50, b=10)
+    layout.update(title=dict(text="영상 시청 퍼널", font=dict(size=14, color="#4C1D95")))
+    fig.update_layout(**layout)
     return fig
+
+def insight_hbar(df, group_col, value_col, title, color_scale, top_n=None, key=""):
+    if value_col == "수량":
+        agg = df.groupby(group_col).size().reset_index(name="수량")
+        y_col = "수량"
+    else:
+        agg = df.groupby(group_col)[value_col].sum().reset_index()
+        y_col = value_col
+    if top_n:
+        agg = agg.sort_values(y_col, ascending=False).head(top_n)
+    agg = agg.sort_values(y_col, ascending=True)
+    fig = px.bar(agg, x=y_col, y=group_col, orientation="h", title=title,
+                 text_auto=".2s" if value_col != "수량" else True,
+                 color=y_col, color_continuous_scale=color_scale)
+    layout = _base_layout(max(300, len(agg)*30), t=45, b=10)
+    layout.update(
+        title=dict(font=dict(size=13, color="#4C1D95")),
+        xaxis=dict(gridcolor=GRID_COLOR),
+        yaxis=dict(gridcolor=CHART_BG),
+    )
+    fig.update_layout(**layout)
+    st.plotly_chart(fig, use_container_width=True, key=key)
 
 
 # ── 전체 대시보드 ─────────────────────────────────────────────────────
 def page_overall():
-    st.markdown("## 📊 전체 성과 대시보드")
-
-    c1, c2 = st.columns([1, 6])
+    c1, c2 = st.columns([1, 5])
     with c1:
         if st.button("🔄 데이터 새로고침", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
     with c2:
-        st.caption(f"마지막 로드: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        st.caption(f"캐시 유효시간 1시간 · 마지막 로드: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     raw = load_data("overall")
     if raw.empty:
@@ -285,22 +415,19 @@ def page_overall():
         return
 
     df = parse_ad_unit(to_numeric(raw))
-
-    # 광고 상품 필터 (캠페인 키워드 검색) — 모든 차트에 적용
     df = product_filter(df, prefix="overall")
-
     filtered = sidebar_filters(df, "overall")
     if filtered.empty:
         st.info("필터 조건에 해당하는 데이터가 없습니다.")
         return
 
     # ── KPI ──
-    st.markdown('<div class="section-title">핵심 성과 지표</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">핵심 성과 지표 (KPI)</div>', unsafe_allow_html=True)
     kpi_row(filtered)
 
     st.divider()
 
-    # ── 플랫폼 · 디바이스 · 지면 (한 줄 3개) ──
+    # ── 플랫폼 · 디바이스 · 지면 ──
     st.markdown('<div class="section-title">플랫폼 · 디바이스 · 지면 비중</div>', unsafe_allow_html=True)
     metric = st.selectbox("기준 지표", ["노출수", "매체 집행 금액", "클릭수", "영상 시청 완료"],
                           key="pie_metric")
@@ -318,46 +445,28 @@ def page_overall():
     st.divider()
 
     # ── 주요 인사이트 ──
-    st.markdown('<div class="section-title">💡 주요 인사이트</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">💡 주요 인사이트 — 업종 · 상품 운영 비중</div>', unsafe_allow_html=True)
 
     cat_col  = next((c for c in filtered.columns if "카테고리" in c), None)
     prod_col = next((c for c in filtered.columns if "캠페인 템플릿" in c), None)
-
-    def insight_hbar(df, group_col, value_col, title, color_scale, top_n=None, key=""):
-        agg = df.groupby(group_col)[value_col].sum().reset_index() if value_col != "수량" \
-              else df.groupby(group_col).size().reset_index(name="수량")
-        if top_n:
-            agg = agg.sort_values(value_col if value_col != "수량" else "수량", ascending=False).head(top_n)
-        agg = agg.sort_values(value_col if value_col != "수량" else "수량", ascending=True)
-        y_col = value_col if value_col != "수량" else "수량"
-        fig = px.bar(agg, x=y_col, y=group_col, orientation="h", title=title,
-                     text_auto=".2s" if value_col != "수량" else True,
-                     color=y_col, color_continuous_scale=color_scale)
-        fig.update_layout(height=max(300, len(agg)*30),
-                          paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                          font_color="#E5E7EB", margin=dict(t=45,b=10,l=10,r=10),
-                          showlegend=False, coloraxis_showscale=False,
-                          xaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
-                          yaxis=dict(gridcolor="rgba(0,0,0,0)"))
-        st.plotly_chart(fig, use_container_width=True, key=key)
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         if cat_col:
             insight_hbar(filtered, cat_col, "수량", "업종별 (수량 기준)",
-                         [[0,"#312e81"],[1,"#a5b4fc"]], key="i_cat_cnt")
+                         [[0,"#C4B5FD"],[1,"#4C1D95"]], key="i_cat_cnt")
     with c2:
         if prod_col:
             insight_hbar(filtered, prod_col, "수량", "상품별 (수량 기준 Top15)",
-                         [[0,"#312e81"],[1,"#a5b4fc"]], top_n=15, key="i_prod_cnt")
+                         [[0,"#C4B5FD"],[1,"#4C1D95"]], top_n=15, key="i_prod_cnt")
     with c3:
         if cat_col:
             insight_hbar(filtered, cat_col, "매체 집행 금액", "업종별 (예산 기준)",
-                         [[0,"#064e3b"],[1,"#34d399"]], key="i_cat_spend")
+                         [[0,"#99F6E4"],[1,"#0F766E"]], key="i_cat_spend")
     with c4:
         if prod_col:
             insight_hbar(filtered, prod_col, "매체 집행 금액", "상품별 (예산 기준 Top15)",
-                         [[0,"#064e3b"],[1,"#34d399"]], top_n=15, key="i_prod_spend")
+                         [[0,"#99F6E4"],[1,"#0F766E"]], top_n=15, key="i_prod_spend")
 
     st.divider()
 
@@ -395,8 +504,16 @@ def page_overall():
         fig = px.line(trend, x="월", y=trend_metric, color="플랫폼",
                       color_discrete_map=PLATFORM_COLORS, markers=True,
                       title=f"월별 {trend_metric} (플랫폼별)")
-        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                          font_color="#E5E7EB", height=320)
+        fig.update_traces(line=dict(width=2.5), marker=dict(size=7))
+        layout = _base_layout(320, t=45, b=30)
+        layout.update(
+            showlegend=True,
+            legend=dict(orientation="h", y=-0.15),
+            title=dict(font=dict(size=14, color="#4C1D95")),
+            xaxis=dict(gridcolor=GRID_COLOR),
+            yaxis=dict(gridcolor=GRID_COLOR),
+        )
+        fig.update_layout(**layout)
         st.plotly_chart(fig, use_container_width=True, key="ov_trend")
 
     st.divider()
@@ -441,7 +558,6 @@ def page_team():
         df = df[df["광고 계정"].isin(sel)]
 
     filtered = sidebar_filters(df, "team")
-
     st.divider()
 
     st.markdown('<div class="section-title">계정별 성과 요약</div>', unsafe_allow_html=True)
@@ -459,7 +575,6 @@ def page_team():
     summary["CPM"]         = (summary["집행금액"] / imp * 1000).round(0)
     summary["CPC"]         = (summary["집행금액"] / summary["클릭수"].replace(0, pd.NA)).round(0)
     summary = summary.sort_values("집행금액", ascending=False)
-
     st.dataframe(summary, use_container_width=True, hide_index=True)
 
     st.divider()
@@ -469,8 +584,9 @@ def page_team():
         monthly = filtered.groupby(["월","광고 계정"])["매체 집행 금액"].sum().reset_index()
         fig = px.bar(monthly, x="월", y="매체 집행 금액", color="광고 계정",
                      barmode="stack", title="월별 계정별 집행 금액")
-        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                          font_color="#E5E7EB", height=350)
+        layout = _base_layout(350, t=45, b=30)
+        layout.update(showlegend=True, title=dict(font=dict(size=14, color="#4C1D95")))
+        fig.update_layout(**layout)
         st.plotly_chart(fig, use_container_width=True, key="team_monthly")
 
     st.divider()
@@ -490,17 +606,19 @@ def page_team():
     c3, c4 = st.columns(2)
     with c3:
         fig_ctr = px.bar(summary.sort_values("CTR(%)"), x="광고 계정", y="CTR(%)",
-                         color="CTR(%)", color_continuous_scale="Blues", text_auto=".2f")
-        fig_ctr.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                               font_color="#E5E7EB", height=300, showlegend=False,
-                               coloraxis_showscale=False, title="계정별 CTR")
+                         color="CTR(%)", color_continuous_scale=[[0,"#C4B5FD"],[1,"#4C1D95"]], text_auto=".2f")
+        layout = _base_layout(300, t=45, b=60)
+        layout.update(title=dict(text="계정별 CTR", font=dict(size=14, color="#4C1D95")),
+                      xaxis=dict(tickangle=-30))
+        fig_ctr.update_layout(**layout)
         st.plotly_chart(fig_ctr, use_container_width=True, key="team_ctr")
     with c4:
         fig_vtr = px.bar(summary.sort_values("VTR 100%(%)"), x="광고 계정", y="VTR 100%(%)",
-                         color="VTR 100%(%)", color_continuous_scale="Greens", text_auto=".2f")
-        fig_vtr.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                               font_color="#E5E7EB", height=300, showlegend=False,
-                               coloraxis_showscale=False, title="계정별 VTR(100%)")
+                         color="VTR 100%(%)", color_continuous_scale=[[0,"#99F6E4"],[1,"#0F766E"]], text_auto=".2f")
+        layout = _base_layout(300, t=45, b=60)
+        layout.update(title=dict(text="계정별 VTR(100%)", font=dict(size=14, color="#4C1D95")),
+                      xaxis=dict(tickangle=-30))
+        fig_vtr.update_layout(**layout)
         st.plotly_chart(fig_vtr, use_container_width=True, key="team_vtr")
 
 
