@@ -20,14 +20,14 @@ DEVICE_COLORS   = {"CTV": "#F59E0B", "iOS": "#10B981", "Android": "#EF4444", "We
 
 CHART_FONT  = "#1E1B4B"
 CHART_BG    = "rgba(0,0,0,0)"
-GRID_COLOR  = "rgba(0,0,0,0.06)"
+GRID_COLOR  = "rgba(0,0,0,0.08)"
 
 # ── CSS ───────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 /* ── 전체 배경 ── */
 .stApp {
-    background: linear-gradient(140deg, #F5F3FF 0%, #EDE9FE 60%, #F0FEFF 100%);
+    background: #F0F2F5;
 }
 .block-container {
     padding: 2rem 2.5rem 3rem !important;
@@ -39,11 +39,14 @@ st.markdown("""
     background: linear-gradient(180deg, #4C1D95 0%, #6D28D9 50%, #7C3AED 100%) !important;
     border-right: none !important;
 }
-[data-testid="stSidebar"] * { color: #EDE9FE !important; }
-[data-testid="stSidebar"] label { color: #C4B5FD !important; }
+[data-testid="stSidebar"] * { color: #FFFFFF !important; }
+[data-testid="stSidebar"] label { color: #FFFFFF !important; font-weight: 500 !important; }
 [data-testid="stSidebar"] .stSelectbox > div,
-[data-testid="stSidebar"] .stMultiSelect > div { background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.25) !important; }
-[data-testid="stSidebar"] h3 { color: white !important; font-size: 15px !important; font-weight: 700 !important; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 16px; }
+[data-testid="stSidebar"] .stMultiSelect > div { background: rgba(255,255,255,0.15) !important; border-color: rgba(255,255,255,0.4) !important; }
+[data-testid="stSidebar"] h3 { color: #FFFFFF !important; font-size: 15px !important; font-weight: 700 !important; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px; margin-bottom: 16px; }
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] div { color: #FFFFFF !important; }
 
 /* ── KPI 메트릭 카드 ── */
 [data-testid="stMetric"] {
