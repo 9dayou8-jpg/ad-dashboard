@@ -41,8 +41,12 @@ st.markdown("""
 }
 [data-testid="stSidebar"] * { color: #FFFFFF !important; }
 [data-testid="stSidebar"] label { color: #FFFFFF !important; font-weight: 500 !important; }
-[data-testid="stSidebar"] .stSelectbox > div,
-[data-testid="stSidebar"] .stMultiSelect > div { background: rgba(255,255,255,0.15) !important; border-color: rgba(255,255,255,0.4) !important; }
+[data-testid="stSidebar"] .stSelectbox > div > div,
+[data-testid="stSidebar"] .stMultiSelect > div > div { background: #FFFFFF !important; border-color: rgba(255,255,255,0.5) !important; border-radius: 8px !important; }
+[data-testid="stSidebar"] .stSelectbox > div > div > div,
+[data-testid="stSidebar"] .stMultiSelect > div > div > div { color: #1E1B4B !important; }
+[data-testid="stSidebar"] .stSelectbox svg,
+[data-testid="stSidebar"] .stMultiSelect svg { fill: #6D28D9 !important; }
 [data-testid="stSidebar"] h3 { color: #FFFFFF !important; font-size: 15px !important; font-weight: 700 !important; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px; margin-bottom: 16px; }
 [data-testid="stSidebar"] p,
 [data-testid="stSidebar"] span,
