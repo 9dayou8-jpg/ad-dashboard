@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="광고 성과 대시보드",
     page_icon="📺",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf8yCiR_Vx0VTVbGTgAPguH08M1r7FtPaF_g3KfbY2GJWUJSd1HihLuergbrylptrYfw/exec"
@@ -145,18 +145,22 @@ def to_numeric(df):
     return df
 
 
-# ── 사이드바 필터 ──────────────────────────────────────────────────────
-def sidebar_filters(df):
-    with st.sidebar:
-        st.markdown("### 🔍 필터")
-        opts = lambda col: sorted(df[col].dropna().unique().tolist()) if col in df.columns else []
-        sel_month    = st.selectbox("월", ["전체"] + opts("월"))
-        sel_platform = st.multiselect("플랫폼", opts("플랫폼"), placeholder="전체")
-        sel_device   = st.multiselect("디바이스", opts("디바이스"), placeholder="전체")
-        sel_cat      = st.multiselect("업종", opts("카테고리"), placeholder="전체")
-        sel_brand    = st.multiselect("브랜드", opts("브랜드"), placeholder="전체")
-        sel_gender   = st.multiselect("성별", opts("성별"), placeholder="전체")
-        sel_age      = st.multiselect("나이", opts("나이"), placeholder="전체")
+# ── 인라인 필터 ────────────────────────────────────────────────────────
+def inline_filters(df):
+    opts = lambda col: sorted(df[col].dropna().unique().tolist()) if col in df.columns else []
+    with st.expander("🔍 필터", expanded=False):
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            sel_month    = st.selectbox("월", ["전체"] + opts("월"))
+            sel_platform = st.multiselect("플랫폼", opts("플랫폼"), placeholder="전체")
+        with c2:
+            sel_device   = st.multiselect("디바이스", opts("디바이스"), placeholder="전체")
+            sel_cat      = st.multiselect("업종", opts("카테고리"), placeholder="전체")
+        with c3:
+            sel_brand    = st.multiselect("브랜드", opts("브랜드"), placeholder="전체")
+            sel_gender   = st.multiselect("성별", opts("성별"), placeholder="전체")
+        with c4:
+            sel_age      = st.multiselect("나이", opts("나이"), placeholder="전체")
 
     f = df.copy()
     if sel_month != "전체": f = f[f["월"] == sel_month]
@@ -317,13 +321,9 @@ def insight_hbar(df, gcol, vcol, title, cscale, top_n=None, key=""):
 
 
 # ── 메인 ──────────────────────────────────────────────────────────────
-c1, c2 = st.columns([1, 5])
-with c1:
-    if st.button("🔄 새로고침", use_container_width=True):
-        st.cache_data.clear()
-        st.rerun()
-with c2:
-    st.caption(f"캐시 1시간 · 로드: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+if st.button("🔄 데이터 새로고침"):
+    st.cache_data.clear()
+    st.rerun()
 
 raw = load_data()
 if raw.empty:
@@ -331,7 +331,7 @@ if raw.empty:
     st.stop()
 
 df       = parse_ad_unit(to_numeric(raw))
-filtered = sidebar_filters(df)
+filtered = inline_filters(df)
 
 if filtered.empty:
     st.info("필터 조건에 해당하는 데이터가 없습니다.")
@@ -341,7 +341,7 @@ cat_col  = next((c for c in filtered.columns if "카테고리" in c), None)
 prod_col = next((c for c in filtered.columns if "캠페인 템플릿" in c), None)
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 KPI 요약", "📺 채널 분석", "🏷 업종·상품", "👤 데모", "📋 원본 데이터"
+    "01  KPI 요약", "02  채널 분석", "03  업종·상품", "04  데모", "05  원본 데이터"
 ])
 
 # ── 탭1: KPI 요약 + 월별 트렌드 ─────────────────────────────────────
@@ -380,16 +380,23 @@ with tab2:
 
 # ── 탭3: 업종·상품 ───────────────────────────────────────────────────
 with tab3:
-    st.markdown('<div class="sec-title">업종 · 상품 운영 비중</div>', unsafe_allow_html=True)
-    c1, c2, c3, c4 = st.columns(4)
+    # 1행: 업종별 (퍼플)
+    st.markdown('<div class="sec-title">업종별 분석</div>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
     with c1:
-        if cat_col:  insight_hbar(filtered, cat_col,  "수량",          "업종별 (수량)",       [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i1")
+        if cat_col: insight_hbar(filtered, cat_col, "수량",          "업종별 · 수량 기준",  [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i1")
     with c2:
-        if prod_col: insight_hbar(filtered, prod_col, "수량",          "상품별 (수량 Top15)", [[0,PURPLE_LT],[1,PURPLE_DARK]], top_n=15, key="i2")
-    with c3:
-        if cat_col:  insight_hbar(filtered, cat_col,  "매체 집행 금액","업종별 (예산)",       [[0,"#99F6E4"],[1,"#0F766E"]], key="i3")
-    with c4:
-        if prod_col: insight_hbar(filtered, prod_col, "매체 집행 금액","상품별 (예산 Top15)", [[0,"#99F6E4"],[1,"#0F766E"]], top_n=15, key="i4")
+        if cat_col: insight_hbar(filtered, cat_col, "매체 집행 금액","업종별 · 예산 기준",  [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i3")
+
+    st.divider()
+
+    # 2행: 상품별 (청록)
+    st.markdown('<div class="sec-title">상품별 분석</div>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1:
+        if prod_col: insight_hbar(filtered, prod_col, "수량",          "상품별 · 수량 기준 Top15",  [[0,"#CCFBF1"],[1,"#0F766E"]], top_n=15, key="i2")
+    with c2:
+        if prod_col: insight_hbar(filtered, prod_col, "매체 집행 금액","상품별 · 예산 기준 Top15",  [[0,"#CCFBF1"],[1,"#0F766E"]], top_n=15, key="i4")
 
     st.divider()
     st.markdown('<div class="sec-title">영상 시청 퍼널 · 업종별 성과</div>', unsafe_allow_html=True)
