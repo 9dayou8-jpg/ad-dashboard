@@ -31,10 +31,14 @@ CHART_BG    = "rgba(0,0,0,0)"
 GRID_COLOR  = "rgba(108,80,243,0.08)"
 
 # ── CSS ──────────────────────────────────────────────────────────────
-st.html("""
-<style>
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+# 폰트 로드 (별도 마크다운)
+st.markdown(
+    '<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">',
+    unsafe_allow_html=True,
+)
 
+# 전체 스타일
+st.markdown("""<style>
 html, body, [class*="css"], .stApp, .stMarkdown, .stMetric,
 .stSelectbox, .stMultiSelect, .stTextInput, .stButton,
 .stDataFrame, .stTabs, button, input, select, textarea {
@@ -215,12 +219,11 @@ hr { border-color: #EAE7FF !important; margin: 20px 0 !important; }
 }
 
 @media (max-width: 768px) { .block-container { padding: 1rem .75rem !important; } .kpi-grid { grid-template-columns: repeat(2,1fr) !important; } }
-</style>
-""")
+</style>""", unsafe_allow_html=True)
 
 
 # ── 헤더 ─────────────────────────────────────────────────────────────
-st.html(f"""
+st.markdown(f"""
 <div class="dash-header">
   <div>
     <div style="color:rgba(196,181,253,.9);font-size:12px;font-weight:700;letter-spacing:.1em;margin-bottom:5px;">
@@ -235,7 +238,7 @@ st.html(f"""
     <div style="color:#fff;font-size:13px;font-weight:700;">{datetime.now().strftime('%Y-%m-%d %H:%M')}</div>
   </div>
 </div>
-""")
+""", unsafe_allow_html=True)
 
 
 # ── 유틸 ─────────────────────────────────────────────────────────────
