@@ -331,82 +331,85 @@ if raw.empty:
     st.stop()
 
 df       = parse_ad_unit(to_numeric(raw))
-df       = product_filter(df)
 filtered = sidebar_filters(df)
 
 if filtered.empty:
     st.info("필터 조건에 해당하는 데이터가 없습니다.")
     st.stop()
 
-# KPI
-st.markdown('<div class="sec-title">핵심 성과 지표</div>', unsafe_allow_html=True)
-kpi_section(filtered)
-
-st.divider()
-
-# 플랫폼 · 디바이스 · 지면
-st.markdown('<div class="sec-title">플랫폼 · 디바이스 · 지면 비중</div>', unsafe_allow_html=True)
-metric = st.selectbox("기준 지표", ["노출수","매체 집행 금액","클릭수","영상 시청 완료"], key="pie_m")
-c1, c2, c3 = st.columns(3)
-with c1: st.plotly_chart(donut(filtered,"플랫폼",metric,f"플랫폼별 {metric}",PLATFORM_COLORS,h=300), use_container_width=True, key="p1")
-with c2: st.plotly_chart(donut(filtered,"디바이스",metric,f"디바이스별 {metric}",DEVICE_COLORS,h=300), use_container_width=True, key="p2")
-with c3: st.plotly_chart(hbar(filtered,"지면",metric,f"지면별 {metric}",top_n=8), use_container_width=True, key="p3")
-
-st.divider()
-
-# 업종 · 상품
-st.markdown('<div class="sec-title">업종 · 상품 운영 비중</div>', unsafe_allow_html=True)
 cat_col  = next((c for c in filtered.columns if "카테고리" in c), None)
 prod_col = next((c for c in filtered.columns if "캠페인 템플릿" in c), None)
-c1, c2, c3, c4 = st.columns(4)
-with c1:
-    if cat_col:  insight_hbar(filtered, cat_col,  "수량",          "업종별 (수량)",      [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i1")
-with c2:
-    if prod_col: insight_hbar(filtered, prod_col, "수량",          "상품별 (수량 Top15)",[[0,PURPLE_LT],[1,PURPLE_DARK]], top_n=15, key="i2")
-with c3:
-    if cat_col:  insight_hbar(filtered, cat_col,  "매체 집행 금액","업종별 (예산)",      [[0,"#99F6E4"],[1,"#0F766E"]], key="i3")
-with c4:
-    if prod_col: insight_hbar(filtered, prod_col, "매체 집행 금액","상품별 (예산 Top15)",[[0,"#99F6E4"],[1,"#0F766E"]], top_n=15, key="i4")
 
-st.divider()
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📊 KPI 요약", "📺 채널 분석", "🏷 업종·상품", "👤 데모", "📋 원본 데이터"
+])
 
-# 퍼널 · 업종별
-st.markdown('<div class="sec-title">영상 시청 퍼널 · 업종별 성과</div>', unsafe_allow_html=True)
-c1, c2 = st.columns(2)
-with c1: st.plotly_chart(funnel(filtered), use_container_width=True, key="fn")
-with c2:
-    cm = st.selectbox("업종별 지표", ["노출수","매체 집행 금액","클릭수"], key="cm")
-    st.plotly_chart(vbar(filtered,"카테고리",cm,f"업종별 {cm}"), use_container_width=True, key="cv")
+# ── 탭1: KPI 요약 + 월별 트렌드 ─────────────────────────────────────
+with tab1:
+    keyword = st.text_input("🔎 캠페인 검색", placeholder="캠페인명 키워드 입력", key="kw")
+    col = next((c for c in ["디캠페인","캠페인 템플릿","캠페인"] if c in filtered.columns), None)
+    f1 = filtered[filtered[col].str.contains(keyword, case=False, na=False)] if keyword and col else filtered
+    if keyword and col: st.caption(f"'{keyword}' — {len(f1):,}행")
 
-st.divider()
+    st.markdown('<div class="sec-title">핵심 성과 지표</div>', unsafe_allow_html=True)
+    kpi_section(f1)
 
-# 데모
-st.markdown('<div class="sec-title">데모 분석 (나이 · 성별)</div>', unsafe_allow_html=True)
-dm = st.selectbox("데모 지표", ["노출수","클릭수","매체 집행 금액"], key="dm")
-c1, c2 = st.columns([2, 1])
-with c1: st.plotly_chart(vbar(filtered,"나이",dm,f"나이별 {dm}"), use_container_width=True, key="da")
-with c2: st.plotly_chart(donut(filtered,"성별",dm,f"성별 {dm}",h=300), use_container_width=True, key="dg")
-
-st.divider()
-
-# 월별 트렌드
-if "월" in filtered.columns and "플랫폼" in filtered.columns:
+    st.divider()
     st.markdown('<div class="sec-title">월별 트렌드</div>', unsafe_allow_html=True)
-    tm = st.selectbox("트렌드 지표", ["노출수","매체 집행 금액","클릭수"], key="tm")
-    trend = filtered.groupby(["월","플랫폼"])[tm].sum().reset_index()
-    fig   = px.line(trend, x="월", y=tm, color="플랫폼",
-                    color_discrete_map=PLATFORM_COLORS, markers=True, title=f"월별 {tm}")
-    fig.update_traces(line=dict(width=2.5), marker=dict(size=7))
-    lay = _layout(320, t=45, b=30)
-    lay.update(showlegend=True, legend=dict(orientation="h", y=-0.15),
-               title=dict(font=dict(size=13, color=TEXT_H)),
-               xaxis=dict(gridcolor=GRID_COLOR), yaxis=dict(gridcolor=GRID_COLOR))
-    fig.update_layout(**lay)
-    st.plotly_chart(fig, use_container_width=True, key="tr")
+    if "월" in f1.columns and "플랫폼" in f1.columns:
+        tm = st.selectbox("트렌드 지표", ["노출수","매체 집행 금액","클릭수"], key="tm")
+        trend = f1.groupby(["월","플랫폼"])[tm].sum().reset_index()
+        fig   = px.line(trend, x="월", y=tm, color="플랫폼",
+                        color_discrete_map=PLATFORM_COLORS, markers=True, title=f"월별 {tm}")
+        fig.update_traces(line=dict(width=2.5), marker=dict(size=7))
+        lay = _layout(340, t=45, b=30)
+        lay.update(showlegend=True, legend=dict(orientation="h", y=-0.15),
+                   title=dict(font=dict(size=13, color=TEXT_H)),
+                   xaxis=dict(gridcolor=GRID_COLOR), yaxis=dict(gridcolor=GRID_COLOR))
+        fig.update_layout(**lay)
+        st.plotly_chart(fig, use_container_width=True, key="tr")
 
-st.divider()
+# ── 탭2: 채널 분석 ───────────────────────────────────────────────────
+with tab2:
+    st.markdown('<div class="sec-title">플랫폼 · 디바이스 · 지면 비중</div>', unsafe_allow_html=True)
+    metric = st.selectbox("기준 지표", ["노출수","매체 집행 금액","클릭수","영상 시청 완료"], key="pie_m")
+    c1, c2, c3 = st.columns(3)
+    with c1: st.plotly_chart(donut(filtered,"플랫폼",metric,f"플랫폼별 {metric}",PLATFORM_COLORS,h=320), use_container_width=True, key="p1")
+    with c2: st.plotly_chart(donut(filtered,"디바이스",metric,f"디바이스별 {metric}",DEVICE_COLORS,h=320), use_container_width=True, key="p2")
+    with c3: st.plotly_chart(hbar(filtered,"지면",metric,f"지면별 {metric}",top_n=8), use_container_width=True, key="p3")
 
-with st.expander("원본 데이터 보기"):
+# ── 탭3: 업종·상품 ───────────────────────────────────────────────────
+with tab3:
+    st.markdown('<div class="sec-title">업종 · 상품 운영 비중</div>', unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        if cat_col:  insight_hbar(filtered, cat_col,  "수량",          "업종별 (수량)",       [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i1")
+    with c2:
+        if prod_col: insight_hbar(filtered, prod_col, "수량",          "상품별 (수량 Top15)", [[0,PURPLE_LT],[1,PURPLE_DARK]], top_n=15, key="i2")
+    with c3:
+        if cat_col:  insight_hbar(filtered, cat_col,  "매체 집행 금액","업종별 (예산)",       [[0,"#99F6E4"],[1,"#0F766E"]], key="i3")
+    with c4:
+        if prod_col: insight_hbar(filtered, prod_col, "매체 집행 금액","상품별 (예산 Top15)", [[0,"#99F6E4"],[1,"#0F766E"]], top_n=15, key="i4")
+
+    st.divider()
+    st.markdown('<div class="sec-title">영상 시청 퍼널 · 업종별 성과</div>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1: st.plotly_chart(funnel(filtered), use_container_width=True, key="fn")
+    with c2:
+        cm = st.selectbox("업종별 지표", ["노출수","매체 집행 금액","클릭수"], key="cm")
+        st.plotly_chart(vbar(filtered,"카테고리",cm,f"업종별 {cm}"), use_container_width=True, key="cv")
+
+# ── 탭4: 데모 ────────────────────────────────────────────────────────
+with tab4:
+    st.markdown('<div class="sec-title">데모 분석 (나이 · 성별)</div>', unsafe_allow_html=True)
+    dm = st.selectbox("데모 지표", ["노출수","클릭수","매체 집행 금액"], key="dm")
+    c1, c2 = st.columns([2, 1])
+    with c1: st.plotly_chart(vbar(filtered,"나이",dm,f"나이별 {dm}"), use_container_width=True, key="da")
+    with c2: st.plotly_chart(donut(filtered,"성별",dm,f"성별 {dm}",h=300), use_container_width=True, key="dg")
+
+# ── 탭5: 원본 데이터 ─────────────────────────────────────────────────
+with tab5:
+    st.markdown('<div class="sec-title">원본 데이터</div>', unsafe_allow_html=True)
     show = [c for c in ["월","브랜드","카테고리","광고 계정","플랫폼","디바이스","지면",
                          "나이","성별","캠페인","매체 집행 금액","노출수","클릭수","영상 시청 완료"]
             if c in filtered.columns]
