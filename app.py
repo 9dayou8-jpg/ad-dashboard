@@ -76,6 +76,13 @@ st.markdown("""<style>
 /* KPI 그룹 제목 */
 .kpi-group { font-size:11px; font-weight:700; color:#9591C4; text-transform:uppercase; letter-spacing:.1em; margin:20px 0 8px; }
 
+/* 고정 필터 바 */
+.filter-bar {
+    position: sticky; top: 2.875rem; z-index: 999;
+    background: #F4F5FF; padding: 10px 0 6px;
+    border-bottom: 1.5px solid #EAE7FF; margin-bottom: 12px;
+}
+
 @media (max-width:768px) { .kpi-grid { grid-template-columns:repeat(2,1fr) !important; } }
 </style>
 """, unsafe_allow_html=True)
@@ -145,22 +152,20 @@ def to_numeric(df):
     return df
 
 
-# ── 인라인 필터 ────────────────────────────────────────────────────────
+# ── 고정 필터 바 ───────────────────────────────────────────────────────
 def inline_filters(df):
     opts = lambda col: sorted(df[col].dropna().unique().tolist()) if col in df.columns else []
-    with st.expander("🔍 필터", expanded=False):
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            sel_month    = st.selectbox("월", ["전체"] + opts("월"))
-            sel_platform = st.multiselect("플랫폼", opts("플랫폼"), placeholder="전체")
-        with c2:
-            sel_device   = st.multiselect("디바이스", opts("디바이스"), placeholder="전체")
-            sel_cat      = st.multiselect("업종", opts("카테고리"), placeholder="전체")
-        with c3:
-            sel_brand    = st.multiselect("브랜드", opts("브랜드"), placeholder="전체")
-            sel_gender   = st.multiselect("성별", opts("성별"), placeholder="전체")
-        with c4:
-            sel_age      = st.multiselect("나이", opts("나이"), placeholder="전체")
+
+    st.markdown('<div class="filter-bar">', unsafe_allow_html=True)
+    c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
+    with c1: sel_month    = st.selectbox("월",    ["전체"] + opts("월"),        label_visibility="collapsed")
+    with c2: sel_platform = st.multiselect("플랫폼", opts("플랫폼"),             placeholder="플랫폼", label_visibility="collapsed")
+    with c3: sel_device   = st.multiselect("디바이스", opts("디바이스"),         placeholder="디바이스", label_visibility="collapsed")
+    with c4: sel_cat      = st.multiselect("업종",  opts("카테고리"),            placeholder="업종", label_visibility="collapsed")
+    with c5: sel_brand    = st.multiselect("브랜드", opts("브랜드"),             placeholder="브랜드", label_visibility="collapsed")
+    with c6: sel_gender   = st.multiselect("성별",  opts("성별"),               placeholder="성별", label_visibility="collapsed")
+    with c7: sel_age      = st.multiselect("나이",  opts("나이"),               placeholder="나이", label_visibility="collapsed")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     f = df.copy()
     if sel_month != "전체": f = f[f["월"] == sel_month]
