@@ -176,15 +176,26 @@ def fmt_pct(n):
 # ── 데이터 ────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
 def load_data(sheet_type: str) -> pd.DataFrame:
-    url = f"{APPS_SCRIPT_URL}?type={sheet_type}"
+    import json as _json
+    # sheet_type 매핑: 대시보드는 "overall"로 호출, 실제 시트명은 "all"
+    sheet_key = {"overall": "all"}.get(sheet_type, sheet_type)
+    payload   = {"action": "read", "key": sheet_key}
     try:
-        resp = requests.get(url, timeout=30)
+        resp = requests.post(
+            APPS_SCRIPT_URL,
+            headers={"Content-Type": "text/plain"},
+            data=_json.dumps(payload),
+            timeout=60,
+        )
         resp.raise_for_status()
-        payload = resp.json()
-        if payload.get("status") != "ok":
-            st.error(f"API 오류: {payload.get('message')}")
-            return pd.DataFrame()
-        return pd.DataFrame(payload["data"])
+        data = resp.json()
+        rows = data.get("data", [])
+        if not rows:
+            # fallback: GET 방식도 시도
+            g = requests.get(f"{APPS_SCRIPT_URL}?type={sheet_key}", timeout=30)
+            gdata = g.json()
+            rows = gdata.get("data", [])
+        return pd.DataFrame(rows)
     except Exception as e:
         st.error(f"데이터 로드 실패: {e}")
         return pd.DataFrame()
