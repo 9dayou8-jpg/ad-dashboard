@@ -26,10 +26,14 @@ TEXT_SUB    = "#9591C4"
 CHART_BG    = "rgba(0,0,0,0)"
 GRID_COLOR  = "rgba(108,80,243,0.08)"
 
-# ── 폰트 + 커스텀 HTML 요소 CSS만 주입 (Streamlit 기본 컴포넌트는 config.toml이 처리)
-st.markdown("""
-<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
-<style>
+# ── 폰트 로드 (별도 호출)
+st.markdown(
+    '<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">',
+    unsafe_allow_html=True,
+)
+
+# ── 커스텀 HTML 요소 CSS (별도 호출 — <link>와 분리 필수)
+st.markdown("""<style>
 * { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif !important; }
 
 /* 커스텀 헤더 배너 */
