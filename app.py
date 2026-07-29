@@ -129,12 +129,14 @@ def load_data() -> pd.DataFrame:
             timeout=60,
         )
         resp.raise_for_status()
-        rows = resp.json().get("data", [])
+        body = resp.json()
+        rows = body.get("data", [])
         if not rows:
-            rows = requests.get(f"{APPS_SCRIPT_URL}?type=all", timeout=30).json().get("data", [])
+            # 상태 디버그용으로 원본 응답 저장
+            st.session_state["_api_debug"] = body
         return pd.DataFrame(rows)
     except Exception as e:
-        st.error(f"데이터 로드 실패: {e}")
+        st.session_state["_api_debug"] = str(e)
         return pd.DataFrame()
 
 def parse_ad_unit(df):
@@ -332,7 +334,12 @@ if st.button("🔄 데이터 새로고침"):
 
 raw = load_data()
 if raw.empty:
-    st.warning("데이터가 없습니다. Apps Script URL을 확인하세요.")
+    st.warning("데이터가 없습니다.")
+    debug = st.session_state.get("_api_debug")
+    if debug:
+        with st.expander("연결 디버그 정보 (개발자용)"):
+            st.json(debug) if isinstance(debug, dict) else st.code(str(debug))
+    st.info("👉 원인: ① all 시트에 데이터가 없거나 ② Apps Script가 응답하지 않는 경우입니다.")
     st.stop()
 
 df       = parse_ad_unit(to_numeric(raw))
