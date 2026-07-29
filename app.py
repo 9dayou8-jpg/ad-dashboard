@@ -385,23 +385,55 @@ with tab2:
 
 # ── 탭3: 업종·상품 ───────────────────────────────────────────────────
 with tab3:
-    # 1행: 업종별 (퍼플)
+    METRICS = {
+        "수량 (건수)":      {"col": "수량",            "is_count": True},
+        "집행 금액":        {"col": "매체 집행 금액",   "is_count": False},
+        "노출수":           {"col": "노출수",           "is_count": False},
+        "클릭수":           {"col": "클릭수",           "is_count": False},
+        "영상 시청 완료":   {"col": "영상 시청 완료",   "is_count": False},
+    }
+    sel_metric = st.selectbox("지표 선택", list(METRICS.keys()), key="cat_metric_sel")
+    m_col    = METRICS[sel_metric]["col"]
+    m_count  = METRICS[sel_metric]["is_count"]
+
+    # 업종별 (퍼플)
     st.markdown('<div class="sec-title">업종별 분석</div>', unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
-        if cat_col: insight_hbar(filtered, cat_col, "수량",          "업종별 · 수량 기준",  [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i1")
+        if cat_col:
+            insight_hbar(filtered, cat_col, m_col if not m_count else "수량",
+                         f"업종별 · {sel_metric} 기준",
+                         [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i1")
     with c2:
-        if cat_col: insight_hbar(filtered, cat_col, "매체 집행 금액","업종별 · 예산 기준",  [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i3")
+        # 항상 집행금액과 비교 (지표가 집행금액이 아닐 때만 추가 표시)
+        if cat_col and m_col != "매체 집행 금액":
+            insight_hbar(filtered, cat_col, "매체 집행 금액",
+                         "업종별 · 집행 금액 기준",
+                         [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i3")
+        elif cat_col:
+            insight_hbar(filtered, cat_col, "노출수",
+                         "업종별 · 노출수 기준",
+                         [[0,PURPLE_LT],[1,PURPLE_DARK]], key="i3b")
 
     st.divider()
 
-    # 2행: 상품별 (청록)
-    st.markdown('<div class="sec-title">상품별 분석</div>', unsafe_allow_html=True)
+    # 상품별 (청록)
+    st.markdown('<div class="sec-title">상품별 분석 (Top 15)</div>', unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
-        if prod_col: insight_hbar(filtered, prod_col, "수량",          "상품별 · 수량 기준 Top15",  [[0,"#CCFBF1"],[1,"#0F766E"]], top_n=15, key="i2")
+        if prod_col:
+            insight_hbar(filtered, prod_col, m_col if not m_count else "수량",
+                         f"상품별 · {sel_metric} 기준",
+                         [[0,"#CCFBF1"],[1,"#0F766E"]], top_n=15, key="i2")
     with c2:
-        if prod_col: insight_hbar(filtered, prod_col, "매체 집행 금액","상품별 · 예산 기준 Top15",  [[0,"#CCFBF1"],[1,"#0F766E"]], top_n=15, key="i4")
+        if prod_col and m_col != "매체 집행 금액":
+            insight_hbar(filtered, prod_col, "매체 집행 금액",
+                         "상품별 · 집행 금액 기준",
+                         [[0,"#CCFBF1"],[1,"#0F766E"]], top_n=15, key="i4")
+        elif prod_col:
+            insight_hbar(filtered, prod_col, "노출수",
+                         "상품별 · 노출수 기준",
+                         [[0,"#CCFBF1"],[1,"#0F766E"]], top_n=15, key="i4b")
 
     st.divider()
     st.markdown('<div class="sec-title">영상 시청 퍼널 · 업종별 성과</div>', unsafe_allow_html=True)
